@@ -1,8 +1,5 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,44 +7,54 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { authClient } from "@/lib/auth-client"
+import { useForm } from "react-hook-form"
+import { signUpType } from "@/components/schema/signup.schmea"
+import { toast } from "sonner"
 
 export default function SignUpPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+
+  const form = useForm<signUpType>({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   })
-  const [isLoading, setIsLoading] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-  }
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match")
-      return
-    }
-
-    setIsLoading(true)
-
+  const handleSignUp = form.handleSubmit(async (values) => {
     try {
-      await authClient.signUp.email({
-        email: formData.email,
-        password: formData.password,
-        name: formData.name,
+      const resp = await authClient.signUp.email({
+        email: values.email,
+        password: values.password,
+        name: values.name,
       })
+
+      if (resp.error) {
+        console.log(resp)
+        toast("Please try again", {
+          description: resp.error.message,
+          position: "top-right",
+          style: {
+
+          }
+        })
+        return
+      }
+
+      toast("Signed in successfully", {
+        position: "top-right",
+        style: {
+
+        }
+      })
+
       router.push("/create-organization")
     } catch (e) {
       console.log("Error", e)
-    } finally {
-      setIsLoading(false)
     }
-  }
+  })
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
@@ -62,53 +69,58 @@ export default function SignUpPage() {
               <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
-                name="name"
+                {...form.register("name", { required: "Name is required" })}
                 placeholder="John Doe"
-                value={formData.name}
-                onChange={handleChange}
-                required
               />
+              {form.formState.errors.name && (
+                <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                name="email"
                 type="email"
+                {...form.register("email", { required: "Email is required" })}
                 placeholder="you@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
               />
+              {form.formState.errors.email && (
+                <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
-                name="password"
                 type="password"
+                {...form.register("password", { required: "Password is required" })}
                 placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                required
               />
+              {form.formState.errors.password && (
+                <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
                 id="confirmPassword"
-                name="confirmPassword"
                 type="password"
+                {...form.register("confirmPassword", { required: "Confirm your password" })}
                 placeholder="••••••••"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
               />
+              {form.formState.errors.confirmPassword && (
+                <p className="text-sm text-red-500">{form.formState.errors.confirmPassword.message}</p>
+              )}
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Sign Up"}
+
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
+
           <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">Already have an account? </span>
             <Link href="/sign-in" className="text-primary hover:underline font-medium">

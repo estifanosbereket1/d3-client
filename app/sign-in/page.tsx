@@ -1,8 +1,5 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,31 +7,53 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { authClient } from "@/lib/auth-client"
-import { error } from "console"
-
-
+import { useForm } from "react-hook-form"
+import { signInType, signInSchema } from "@/components/schema/signin.schema"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
 
 export default function SignInPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
 
+  const form = useForm<signInType>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    resolver: zodResolver(signInSchema),
+  })
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
+  const handleSignIn = form.handleSubmit(async (values) => {
     try {
-      await authClient.signIn.email({ email, password })
+      const resp = await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+      })
+
+      if (resp.error) {
+        console.log(resp)
+        toast("Please try again", {
+          description: resp.error.message,
+          position: "top-right",
+          style: {
+
+          }
+        })
+        return
+      }
+
+      toast("Signed in successfully", {
+        position: "top-right",
+        style: {
+
+        }
+      })
+
       router.push("/dashboard/table")
-      setIsLoading(false)
     } catch (error) {
       console.log("Sign in error:", error)
-    } finally {
-      setIsLoading(false)
     }
-  }
+  })
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
@@ -51,26 +70,41 @@ export default function SignInPage() {
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...form.register("email")}
                 required
               />
+              {form.formState.errors.email && (
+                <p className="text-red-500 text-sm">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...form.register("password")}
                 required
               />
+              {form.formState.errors.password && (
+                <p className="text-red-500 text-sm">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           </form>
+
           <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">Don't have an account? </span>
             <Link href="/sign-up" className="text-primary hover:underline font-medium">

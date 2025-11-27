@@ -1,8 +1,5 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,31 +7,53 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { authClient } from "@/lib/auth-client"
+import { useForm } from "react-hook-form"
+import { organizationSchema, organizationType } from "@/components/schema/organization.schema"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
 
 export default function CreateOrganizationPage() {
   const router = useRouter()
-  const [orgName, setOrgName] = useState("")
-  const [slug, setSlug] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
 
-  const handleCreateOrg = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  const form = useForm<organizationType>({
+    defaultValues: {
+      name: "",
+      slug: "",
+    },
+    resolver: zodResolver(organizationSchema),
+  })
 
+  const handleCreateOrg = form.handleSubmit(async (values) => {
     try {
-      await authClient.organization.create({
-        name: orgName,
-        slug: slug,
-        keepCurrentActiveOrganization: true
+      const resp = await authClient.organization.create({
+        name: values.name,
+        slug: values.slug,
+        keepCurrentActiveOrganization: true,
       })
+      if (resp.error) {
+        console.log(resp)
+        toast("Please try again", {
+          description: resp.error.message,
+          position: "top-right",
+          style: {
+
+          }
+        })
+        return
+      }
+
+      toast("Signed in successfully", {
+        position: "top-right",
+        style: {
+
+        }
+      })
+
       router.push("/dashboard/table")
     } catch (e) {
       console.log("Error", e)
-    } finally {
-      setIsLoading(false)
     }
-
-  }
+  })
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
@@ -46,29 +65,34 @@ export default function CreateOrganizationPage() {
         <CardContent>
           <form onSubmit={handleCreateOrg} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="orgName">Organization Name</Label>
+              <Label htmlFor="name">Organization Name</Label>
               <Input
-                id="orgName"
+                id="name"
                 placeholder="Acme Inc"
-                value={orgName}
-                onChange={(e) => setOrgName(e.target.value)}
-                required
+                {...form.register("name")}
               />
+              {form.formState.errors.name && (
+                <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="slug">Slug</Label>
               <Input
                 id="slug"
-                placeholder="Acme Inc"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                required
+                placeholder="acme-inc"
+                {...form.register("slug")}
               />
+              {form.formState.errors.slug && (
+                <p className="text-sm text-red-500">{form.formState.errors.slug.message}</p>
+              )}
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Organization"}
+
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Creating..." : "Create Organization"}
             </Button>
           </form>
+
           <div className="mt-4 text-center text-sm">
             <Link href="/join-organization" className="text-primary hover:underline font-medium">
               Join an existing organization instead
