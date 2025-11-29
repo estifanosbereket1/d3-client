@@ -49,7 +49,7 @@ export default function SignInPage() {
         }
       })
 
-      router.push("/dashboard/table")
+      router.push("/select-organization")
     } catch (error) {
       console.log("Sign in error:", error)
     }

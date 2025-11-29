@@ -16,6 +16,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { UserPlus, Trash2 } from "lucide-react"
+import { authClient } from "@/lib/auth-client"
 
 interface TeamMember {
   id: string
@@ -54,6 +55,24 @@ export default function TeamPage() {
   const [inviteOpen, setInviteOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState("")
   const [inviteRole, setInviteRole] = useState<"Admin" | "Member">("Member")
+
+  const { data: activeOrg } = authClient.useActiveOrganization()
+
+  // const { data, error } = await authClient.organization.listMembers({
+  //   query: {
+  //     organizationId: activeOrg?.id,
+  //     limit: 100,
+  //     offset: 0,
+  //     sortBy: "createdAt",
+  //     sortDirection: "desc",
+  //     filterField: "createdAt",
+  //     filterOperator: "eq",
+  //     filterValue: "value",
+  //   },
+  // });
+
+  console.log("team members")
+  console.log(activeOrg?.members)
 
   const handleInvite = () => {
     if (inviteEmail) {
@@ -104,12 +123,12 @@ export default function TeamPage() {
         <CardContent>
           <div className="space-y-4">
             <div>
-              <Label className="text-xs font-semibold">Organization Name</Label>
-              <p className="text-lg font-medium mt-1">Acme Inc</p>
+              <Label className="text-xs font-semibold">{activeOrg?.name}</Label>
+              <p className="text-lg font-medium mt-1">{activeOrg?.slug}</p>
             </div>
             <div>
               <Label className="text-xs font-semibold">Organization ID</Label>
-              <p className="text-sm text-muted-foreground mt-1">org_1234567890</p>
+              <p className="text-sm text-muted-foreground mt-1">{activeOrg?.id}</p>
             </div>
           </div>
         </CardContent>
@@ -177,16 +196,16 @@ export default function TeamPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {members.map((member) => (
+              {activeOrg?.members.map((member) => (
                 <TableRow key={member.id}>
-                  <TableCell className="font-medium">{member.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{member.email}</TableCell>
+                  <TableCell className="font-medium">{member.user.name}</TableCell>
+                  <TableCell className="text-muted-foreground">{member.user.email}</TableCell>
                   <TableCell>
                     <Badge className={getRoleBadgeColor(member.role)}>{member.role}</Badge>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{member.joinedDate}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{member.createdAt.toLocaleTimeString()}</TableCell>
                   <TableCell>
-                    {member.role !== "Owner" && (
+                    {member.role !== "owner" && (
                       <Button
                         variant="ghost"
                         size="sm"
