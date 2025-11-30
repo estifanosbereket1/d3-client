@@ -1,65 +1,67 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useParams, useSearchParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, XCircle } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 
-export default function AcceptInvitationPage({ params }: { params: { id: string } }) {
+export default function AcceptInvitationPage() {
     const router = useRouter()
+    const { id } = useParams()
+    const searchParams = useSearchParams()
+
     const [isLoading, setIsLoading] = useState(false)
     const [status, setStatus] = useState<"pending" | "accepted" | "rejected" | null>(null)
+    const [invitationData, setInvitationData] = useState({
+        id: id || "",
+        organizationName: "",
+        organizationLogo: "🏢",
+        invitedBy: "",
+        role: "",
+        createdAt: "",
+    })
 
+    const { data } = authClient.useSession()
 
-    const { id } = useParams();
-    console.log("Idddddddddddddd", id)
-
-    const getCompany = async () => {
-        const { data, error } = await authClient.organization.getInvitation({
-            query: {
-                id: typeof id === "string" ? id : "", // ensure id is a string
-            },
-        });
-        console.log(data, "llllllllllllllllllllll")
-    }
+    console.log("Session data", data)
 
     useEffect(() => {
-        getCompany()
-    }, [])
+        // Parse query parameters
+        const orgName = searchParams.get("orgName") || "Unknown Company"
+        const inviterName = searchParams.get("inviterName") || "Unknown"
+        const role = searchParams.get("role") || "Member"
+        const date = searchParams.get("date") || new Date().toLocaleDateString()
 
-
-
-    // Mock invitation data - replace with actual data fetching
-    const invitationData = {
-        id: "",
-        organizationName: "Acme Inc",
-        organizationLogo: "🏢",
-        invitedBy: "John Doe",
-        role: "Editor",
-        createdAt: new Date().toLocaleDateString(),
-    }
+        setInvitationData({
+            id: id || "",
+            organizationName: decodeURIComponent(orgName),
+            organizationLogo: "🏢",
+            invitedBy: decodeURIComponent(inviterName),
+            role: decodeURIComponent(role),
+            createdAt: decodeURIComponent(date),
+        })
+    }, [id, searchParams])
 
     const handleAccept = async () => {
         setIsLoading(true)
-        setTimeout(() => {
-            setStatus("accepted")
-            // Redirect to dashboard after a short delay
-            setTimeout(() => {
-                router.push("/dashboard/table")
-            }, 1500)
-        }, 500)
+        if (!data) {
+            router.push("/sign-in?id=" + invitationData.id)
+        } else {
+            const { data, error } = await authClient.organization.acceptInvitation({
+                invitationId: invitationData?.id as string, // required
+            });
+            router.push("/")
+            console.log(data, error)
+        }
     }
 
-    const handleReject = async () => {
+    const handleReject = () => {
         setIsLoading(true)
         setTimeout(() => {
             setStatus("rejected")
-            // Redirect to home after a short delay
-            setTimeout(() => {
-                router.push("/")
-            }, 1500)
+            setTimeout(() => router.push("/"), 1500)
         }, 500)
     }
 
@@ -73,7 +75,6 @@ export default function AcceptInvitationPage({ params }: { params: { id: string 
                 <CardContent>
                     {status === null ? (
                         <div className="space-y-6">
-                            {/* Organization Info */}
                             <div className="flex items-start gap-4 p-4 bg-secondary/50 rounded-lg">
                                 <div className="text-4xl">{invitationData.organizationLogo}</div>
                                 <div className="flex-1">
@@ -83,7 +84,6 @@ export default function AcceptInvitationPage({ params }: { params: { id: string 
                                 </div>
                             </div>
 
-                            {/* Details */}
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Invitation ID:</span>
@@ -95,7 +95,6 @@ export default function AcceptInvitationPage({ params }: { params: { id: string 
                                 </div>
                             </div>
 
-                            {/* Actions */}
                             <div className="space-y-3">
                                 <Button
                                     onClick={handleAccept}

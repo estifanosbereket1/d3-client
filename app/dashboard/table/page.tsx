@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,10 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useApiQuery } from "@/hooks/useApiQuery"
 import { OutlineResponse } from "@/interfaces/outline.interface"
-import { useApiMutation, useApiMutationWithId } from "@/hooks/useApiMutation"
-
-
-
+import { useSelector } from "react-redux"
 
 type ColumnKey = "sectionType" | "status" | "target" | "limit" | "reviewer"
 
@@ -39,16 +36,36 @@ export default function TablePage() {
 
   const [visibleColumns, setVisibleColumns] = useState<Record<ColumnKey, boolean>>(defaultVisibleColumns)
 
+  const orgId = useSelector((s: any) => s.organization?.id)
 
+  const url = `/outline?page=${currentPage}&limit=${rowsPerPage}`
+  const queryKey = ["outline", orgId, currentPage, rowsPerPage]
 
-  const { data, isLoading } = useApiQuery<OutlineResponse>(["outline"], "/outline");
+  const { data, isLoading, refetch } = useApiQuery<{ items?: OutlineResponse; total?: number } | OutlineResponse>(
+    queryKey,
+    url
+  )
 
+  const items: OutlineResponse = Array.isArray(data) ? (data as OutlineResponse) : (data?.items ?? [])
+  const totalCount: number = Array.isArray(data) ? (data as OutlineResponse).length : (data?.total ?? items.length)
 
-  const totalPages = Math.ceil(data?.length ?? 0 / rowsPerPage)
+  const totalPages = Math.max(1, Math.ceil(totalCount / rowsPerPage))
   const startIndex = (currentPage - 1) * rowsPerPage
   const endIndex = startIndex + rowsPerPage
-  console.log(data)
 
+  useEffect(() => {
+    refetch()
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, rowsPerPage])
+
+  useEffect(() => {
+    if (orgId) {
+      setCurrentPage(1)
+      refetch()
+    }
+  }, [orgId])
 
   const toggleRowSelection = (id: string) => {
     const newSelected = new Set(selectedRows)
@@ -67,13 +84,9 @@ export default function TablePage() {
     }))
   }
 
-  const handleSaveItem = (item: any) => {
+  const handleSaveItem = (item: any) => { }
 
-  }
-
-  const handleDeleteItem = (id: string) => {
-    // setItems(items.filter((i) => i.id !== id))
-  }
+  const handleDeleteItem = (id: string) => { }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -158,6 +171,7 @@ export default function TablePage() {
                 </DropdownMenuContent>
               </DropdownMenu>
               <OutlineSheet
+                // invalidate={refetch}
                 trigger={
                   <Button>
                     <Plus className="w-4 h-4 mr-2" />
@@ -183,7 +197,7 @@ export default function TablePage() {
                       className="rounded"
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedRows(new Set(data?.map((i) => i.id)))
+                          setSelectedRows(new Set(items?.map((i) => i.id)))
                         } else {
                           setSelectedRows(new Set())
                         }
@@ -201,7 +215,7 @@ export default function TablePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.map((item) => (
+                {items?.map((item) => (
                   <TableRow key={item.id} className="hover:bg-muted/50">
                     <TableCell>
                       <input
@@ -259,7 +273,7 @@ export default function TablePage() {
 
         <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
           <span>
-            {selectedRows.size} of {data?.length} row(s) selected.
+            {selectedRows.size} of {totalCount} row(s) selected.
           </span>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">

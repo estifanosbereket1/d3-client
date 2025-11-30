@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +33,7 @@ export default function SignInPage() {
       if (resp.error) {
         console.log(resp)
         toast("Please try again", {
+
           description: resp.error.message,
           position: "top-right",
           style: {
@@ -49,11 +50,20 @@ export default function SignInPage() {
         }
       })
 
-      router.push("/select-organization")
+      if (id) {
+        router.push(`/accept-invitation/${id}`)
+      } else {
+        router.push("/select-organization")
+      }
+
     } catch (error) {
       console.log("Sign in error:", error)
     }
   })
+
+  const searchParams = useSearchParams()
+
+  const id = searchParams.get("id")
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
@@ -107,10 +117,14 @@ export default function SignInPage() {
 
           <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">Don't have an account? </span>
-            <Link href="/sign-up" className="text-primary hover:underline font-medium">
+            <Link
+              href={id ? `/sign-up?id=${id}` : "/sign-up"}
+              className="text-primary hover:underline font-medium"
+            >
               Sign up
             </Link>
           </div>
+
         </CardContent>
       </Card>
     </div>

@@ -24,7 +24,7 @@ export const outlineSchema = z.object({
     status: z.nativeEnum(Status),
     limit: z.number(),
     target: z.number(),
-    reviewer: z.string()
+    memberId: z.string()
 })
 
 export type outlineType = z.infer<typeof outlineSchema>

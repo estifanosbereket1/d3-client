@@ -23,11 +23,11 @@ export default function SelectOrganizationPage() {
     const router = useRouter()
     const dispatch = useDispatch<AppDispatch>();
 
-    // hook result (shape: { data: Organization[] | null; ... })
     const orgQuery = authClient.useListOrganizations()
     const organizations: Organization[] | null | undefined = orgQuery.data
 
-    // derive loading from the hook if available, fallback to checking data presence
+    console.log(orgQuery, "orgQuery")
+
     const loading = (orgQuery as any).isLoading ?? organizations === undefined
 
     const [selectedOrgId, setSelectedOrgId] = useState<{
@@ -38,7 +38,6 @@ export default function SelectOrganizationPage() {
         slug: ""
     })
 
-    // when organizations load, default-select the first one (if none selected)
     useEffect(() => {
         if (!organizations || organizations.length === 0) return
         if (!selectedOrgId) {

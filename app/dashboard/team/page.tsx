@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { UserPlus, Trash2, Mail } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
+import ConfirmDialog from "@/components/confirm.dialougue"
 
 type Tab = "members" | "invitations"
 
@@ -27,16 +28,15 @@ export default function TeamPage() {
   const [inviteRole, setInviteRole] = useState<"admin" | "member">("member")
 
   const { data: activeOrg } = authClient.useActiveOrganization()
+  const { data: activeRole } = authClient.useActiveMemberRole()
 
   const handleInvite = async () => {
     if (!inviteEmail) return
-    // leave data handling to you — call your invite API here
-    // example:
-    // await authClient.organization.inviteMember({ ... })
+
 
     const { data, error } = await authClient.organization.inviteMember({
       email: inviteEmail,
-      role: "member", // required 
+      role: inviteRole,
       organizationId: activeOrg?.id, resend: true,
     });
     console.log("Error", error)
@@ -46,12 +46,23 @@ export default function TeamPage() {
     setInviteOpen(false)
   }
 
-  const handleRemoveMember = (id: string) => {
-    // implement member removal
+  const handleRemoveMember = async (email: string, orgId: string) => {
+    const { data, error } = await authClient.organization.removeMember({
+      memberIdOrEmail: email,
+      organizationId: orgId,
+    });
+
   }
 
-  const handleCancelInvitation = (invitationId: string) => {
-    // implement invitation cancel/resend/etc
+  const handleCancelInvitation = async (invitationId: string) => {
+    print
+    try {
+      const { data, error } = await authClient.organization.cancelInvitation({
+        invitationId: invitationId,
+      });
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -64,6 +75,20 @@ export default function TeamPage() {
         return "bg-blue-100 text-blue-800"
       default:
         return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  const getStatusBadgeColor = (status: "accepted" | "rejected" | "canceled" | "pending" | undefined) => {
+    switch (status) {
+      case "accepted":
+        return "bg-green-100 text-green-800"
+      case "rejected":
+        return "bg-red-100 text-red-800"
+      case "canceled":
+        return "bg-gray-100 text-gray-800"
+      case "pending":
+      default:
+        return "bg-yellow-100 text-yellow-800"
     }
   }
 
@@ -117,10 +142,17 @@ export default function TeamPage() {
 
             <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
               <DialogTrigger asChild>
-                <Button>
+                {
+                  activeRole?.role === "owner" &&
+                  <Button>
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Invite Member
+                  </Button>
+                }
+                {/* <Button>
                   <UserPlus className="w-4 h-4 mr-2" />
                   Invite Member
-                </Button>
+                </Button> */}
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -151,6 +183,7 @@ export default function TeamPage() {
                       <option value="admin">Admin</option>
                     </select>
                   </div>
+
                   <Button onClick={handleInvite} className="w-full">
                     Send Invite
                   </Button>
@@ -182,15 +215,17 @@ export default function TeamPage() {
                       {member.createdAt ? new Date(member.createdAt).toLocaleString() : "—"}
                     </TableCell>
                     <TableCell>
-                      {member.role !== "owner" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveMember(member.id)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                      {member.role !== "owner" && activeRole?.role === "owner" && (
+                        <ConfirmDialog
+                          title="Remove Member?"
+                          description={`Are you sure you want to remove ${member.user.email} from the team?`}
+                          onConfirm={() => handleRemoveMember(member.user.email, activeOrg.id)}
+                          trigger={
+                            <Button variant="ghost" size="sm" title="Remove member" className="text-destructive hover:text-destructive">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          }
+                        />
                       )}
                     </TableCell>
                   </TableRow>
@@ -232,29 +267,44 @@ export default function TeamPage() {
                         {inv.createdAt ? new Date(inv.createdAt).toLocaleString() : "—"}
                       </TableCell>
                       <TableCell>
-                        <Badge className="bg-yellow-100 text-yellow-800">{inv.status ?? "pending"}</Badge>
+                        <Badge className={getStatusBadgeColor(inv.status)}>
+                          {inv.status ?? "pending"}
+                        </Badge>
+                        {/* <Badge className="bg-yellow-100 text-yellow-800">{inv.status ?? "pending"}</Badge> */}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleCancelInvitation(inv.id)}
-                            title="Cancel invitation"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              /* optional: open mail client to resend link (leave handling to you) */
-                              // window.open(`mailto:${inv.email}?subject=Invitation&body=...`)
-                            }}
-                            title="Resend invitation"
-                          >
-                            <Mail className="w-4 h-4" />
-                          </Button>
+                          {inv.status === "pending" && (
+                            <ConfirmDialog
+                              title="Cancel Invitation?"
+                              description={`Are you sure you want to cancel the invitation to ${inv.email}?`}
+                              onConfirm={() => handleCancelInvitation(inv.id)}
+                              trigger={
+                                <Button variant="ghost" size="sm" title="Cancel invitation">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              }
+                            />
+                          )}
+
+                          {
+                            inv.status == "canceled" &&
+                            (
+                              <ConfirmDialog
+                                title="Resend Invitation?"
+                                description={`Do you want to resend the invitation to ${inv.email}?`}
+                                onConfirm={() => handleInvite()} // pass the resend logic here
+                                confirmText="Resend"
+                                trigger={
+                                  <Button variant="ghost" size="sm" title="Resend invitation">
+                                    <Mail className="w-4 h-4" />
+                                  </Button>
+                                }
+                              />
+                            )
+                          }
+
+
                         </div>
                       </TableCell>
                     </TableRow>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,10 @@ import { toast } from "sonner"
 
 export default function SignUpPage() {
   const router = useRouter()
+
+  const searchParams = useSearchParams()
+
+  const id = searchParams.get("id")
 
   const form = useForm<signUpType>({
     defaultValues: {
@@ -50,7 +54,13 @@ export default function SignUpPage() {
         }
       })
 
-      router.push("/create-organization")
+      if (id) {
+        router.push("/accept-invitation/" + id)
+      } else {
+        router.push("/create-organization")
+
+      }
+
     } catch (e) {
       console.log("Error", e)
     }
