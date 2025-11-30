@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Building2 } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
+import { useDispatch } from "react-redux"
+import { AppDispatch } from "@/store"
+import { setOrganizationId } from "@/store/slices/organization.slice"
 
 interface Organization {
     id: string
@@ -18,6 +21,7 @@ interface Organization {
 
 export default function SelectOrganizationPage() {
     const router = useRouter()
+    const dispatch = useDispatch<AppDispatch>();
 
     // hook result (shape: { data: Organization[] | null; ... })
     const orgQuery = authClient.useListOrganizations()
@@ -59,6 +63,7 @@ export default function SelectOrganizationPage() {
             organizationId: selectedOrgId.id,
             organizationSlug: selectedOrgId.slug
         });
+        dispatch(setOrganizationId(selectedOrgId.id));
         router.push("/dashboard/table")
     }
 

@@ -9,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { authClient } from "@/lib/auth-client"
 import { AlertDialog } from "@radix-ui/react-alert-dialog"
 import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
+import { useDispatch } from "react-redux"
+import { AppDispatch } from "@/store"
+import { clearOrganizationId, setOrganizationId } from "@/store/slices/organization.slice"
 
 interface SidebarProps {
   orgName: string
@@ -18,6 +21,7 @@ interface SidebarProps {
 
 export function Sidebar({ orgName }: SidebarProps) {
   const pathname = usePathname()
+  const dispatch = useDispatch<AppDispatch>();
 
   const { data: organizations } = authClient.useListOrganizations()
   const { data: activeOrg } = authClient.useActiveOrganization()
@@ -35,6 +39,8 @@ export function Sidebar({ orgName }: SidebarProps) {
 
   const handleLogout = () => {
     localStorage.removeItem("session")
+    dispatch(clearOrganizationId());
+    authClient.signOut()
     window.location.href = "/sign-in"
   }
 
@@ -45,7 +51,9 @@ export function Sidebar({ orgName }: SidebarProps) {
         organizationId: selected.id,
         organizationSlug: selected.slug
       })
+      dispatch(setOrganizationId(selected.id));
       setCurrentOrg(selected.name)
+
     }
   }
 
@@ -61,17 +69,9 @@ export function Sidebar({ orgName }: SidebarProps) {
 
   return (
     <div className="w-64 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col h-screen">
-      {/* Header with Organization Selector */}
       <div className="p-6 border-b border-sidebar-border">
         <Select value={organizations?.find((org) => org.name === currentOrg)?.id || ""} onValueChange={handleOrgChange}>
-          {/* <SelectTrigger className="w-full bg-sidebar text-sidebar-foreground border-sidebar-border">
-            <div className="flex items-center gap-3 w-full">
-              <div className="w-8 h-8 rounded bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm font-semibold flex-shrink-0">
-                {currentOrg.charAt(0).toUpperCase()}
-              </div>
-              <SelectValue placeholder="Select organization" />
-            </div>
-          </SelectTrigger> */}
+
           <SelectTrigger className="w-full bg-sidebar text-sidebar-foreground border-sidebar-border">
             <div className="flex items-center gap-3 w-full">
               <div className="w-8 h-8 rounded bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm font-semibold flex-shrink-0">
@@ -88,9 +88,7 @@ export function Sidebar({ orgName }: SidebarProps) {
             {organizations?.map((org) => (
               <SelectItem key={org.id} value={org.id}>
                 <div className="flex items-center gap-3">
-                  {/* <div className="w-6 h-6 rounded bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-xs font-semibold">
-                    {org.name.charAt(0).toUpperCase()}
-                  </div> */}
+
                   <div className="flex flex-col">
                     <p className="text-sm font-medium">{org.name}</p>
                     <p className="text-xs text-muted-foreground">{org.slug}</p>
@@ -98,17 +96,6 @@ export function Sidebar({ orgName }: SidebarProps) {
                 </div>
               </SelectItem>
 
-              // <SelectItem key={org.id} value={org.id}>
-              //   <div className="flex items-center gap-3">
-              //     {/* <div className="w-6 h-6 rounded bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-xs font-semibold">
-              //       {org.name.charAt(0).toUpperCase()}
-              //     </div> */}
-              //     <div>
-              //       <p className="text-sm font-medium">{org.name}</p>
-              //       <p className="text-xs text-muted-foreground">{org.slug}</p>
-              //     </div>
-              //   </div>
-              // </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -140,7 +127,6 @@ export function Sidebar({ orgName }: SidebarProps) {
         </nav>
       </div>
 
-      {/* Footer */}
       <div className="p-4 border-t border-sidebar-border">
         <Button
           variant="ghost"

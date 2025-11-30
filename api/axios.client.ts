@@ -1,4 +1,5 @@
 // src/api/axiosClient.ts
+import { store } from "@/store";
 import axios from "axios";
 // import store from "../store";
 
@@ -10,17 +11,14 @@ const axiosClient = axios.create({
 // REQUEST INTERCEPTOR
 axiosClient.interceptors.request.use(
     (config: any) => {
-        const session = localStorage.getItem("session")
-
-        // const state = store.getState();
-        // const accessToken = state.auth?.accessToken;
-        // const organizationId = state.org?.organizationId;
-
-
-
-        // if (organizationId) {
-        //     config.headers["x-organization-id"] = organizationId;
-        // }
+        const state = store.getState();
+        const orgId = state.organization?.id;
+        if (orgId) {
+            config.headers = {
+                ...(config.headers || {}),
+                "x-organization-id": orgId,
+            };
+        }
 
         return config;
     },

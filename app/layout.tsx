@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { Toaster } from 'sonner';
 import TanstackQueryProvider from '@/components/provider/query.provider';
+import { ReduxProvider } from '@/components/provider/redux.provider';
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -25,9 +26,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`font-sans antialiased`}>
         <TanstackQueryProvider>
-          {children}
-          <Analytics />
-          <Toaster />
+          <ReduxProvider>
+            {children}
+            <Analytics />
+            <Toaster />
+          </ReduxProvider>
         </TanstackQueryProvider>
       </body>
     </html>
