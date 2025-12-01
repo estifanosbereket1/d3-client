@@ -112,69 +112,65 @@ import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
 import { ChartAreaStacked } from "./trending.chart"
 import ConfirmDialog from "./confirm.dialougue"
 
+
+
 type InlineConfirmProps = {
-    message?: string
-    confirmText?: string
-    cancelText?: string
+    message: string
     onConfirm: () => void | Promise<void>
 }
 
-export default function InlineConfirm({
-    message = "Are you sure?",
-    confirmText = "Yes",
-    cancelText = "No",
-    onConfirm,
-}: InlineConfirmProps) {
-    const [showConfirm, setShowConfirm] = React.useState(false)
-    const [busy, setBusy] = React.useState(false)
+export function InlineConfirm({ message, onConfirm }: InlineConfirmProps) {
+    const [open, setOpen] = React.useState(false)
+    const [loading, setLoading] = React.useState(false)
 
     const handleConfirm = async () => {
+        setLoading(true)
         try {
-            setBusy(true)
-            const result = onConfirm()
-            if (result instanceof Promise) await result
-        } catch (err) {
-            console.error(err)
+            await onConfirm()
         } finally {
-            setBusy(false)
-            setShowConfirm(false)
+            setLoading(false)
+            setOpen(false)
         }
     }
 
     return (
-        <div className="inline-flex items-center gap-2">
-            {!showConfirm ? (
+        <div className="inline-block relative">
+            {!open && (
                 <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={() => setShowConfirm(true)}
+                    size="icon"
+                    onClick={() => setOpen(true)}
                 >
                     Delete
                 </Button>
-            ) : (
-                <>
-                    <span className="text-sm text-muted-foreground">{message}</span>
-                    <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={handleConfirm}
-                        disabled={busy}
-                    >
-                        {busy ? "Deleting..." : confirmText}
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setShowConfirm(false)}
-                        disabled={busy}
-                    >
-                        {cancelText}
-                    </Button>
-                </>
+            )}
+
+            {open && (
+                <div className="absolute z-10 mt-2 w-64 p-4 rounded-lg border bg-background shadow-md">
+                    <p className="mb-4 text-sm">{message}</p>
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleConfirm}
+                            disabled={loading}
+                        >
+                            {loading ? "Deleting..." : "Delete"}
+                        </Button>
+                    </div>
+                </div>
             )}
         </div>
     )
 }
+
 
 
 export const schema = z.object({
@@ -457,17 +453,12 @@ export function DataTable() {
                         >Edit</DropdownMenuItem>
                         <DropdownMenuSeparator />
 
-                        <InlineConfirm
-                            message={`Delete "${row.original.header}"?`}
-                            onConfirm={async () => { await deleteOutline({ id: row.original.id }) }}
-                            confirmText="Delete"
-                            cancelText="Cancel"
-                        />
+
                         <DropdownMenuItem
                             onClick={async () => {
                                 await deleteOutline({ id: row.original.id })
                             }}
-                        >delete</DropdownMenuItem>
+                        >Delete</DropdownMenuItem>
                         <DropdownMenuSeparator />
 
 
