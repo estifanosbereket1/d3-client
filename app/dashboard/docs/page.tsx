@@ -3,7 +3,8 @@
 import type React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Shield, Container, Zap, Cloud, Code, MailIcon } from "lucide-react"
+import { ExternalLink, Shield, Container, Zap, Cloud, Code, MailIcon, Database } from "lucide-react"
+import { IconBrandDocker, IconBrandNextjs, IconBrandNodejs, IconBrandPrisma, IconBrandVercel } from "@tabler/icons-react"
 
 interface TechStackItem {
     name: string
@@ -15,12 +16,12 @@ export default function DocsPage() {
     const techStack: TechStackItem[] = [
         {
             name: "Next.js",
-            icon: <Zap className="w-8 h-8" />,
+            icon: <IconBrandNextjs className="w-8 h-8" />,
             description: "React framework for production",
         },
         {
             name: "NestJS",
-            icon: <Code className="w-8 h-8" />,
+            icon: <IconBrandNodejs className="w-8 h-8" />,
             description: "Progressive Node.js framework",
         },
         {
@@ -30,19 +31,31 @@ export default function DocsPage() {
         },
         {
             name: "Docker",
-            icon: <Container className="w-8 h-8" />,
+            icon: <IconBrandDocker className="w-8 h-8" />,
             description: "Containerization platform",
         },
         {
             name: "Vercel",
-            icon: <Cloud className="w-8 h-8" />,
+            icon: <IconBrandVercel className="w-8 h-8" />,
             description: "Deployment and hosting",
         },
         {
             name: "PostgreSQL",
-            icon: <Zap className="w-8 h-8" />,
+            icon: <Database className="w-8 h-8" />,
             description: "Relational database",
         },
+        {
+            name: "Prisma",
+            icon: <IconBrandPrisma />,
+            description: "ORM for databases"
+        },
+
+        {
+            name: "NeonDv",
+            icon: <Database />,
+            description: "Databse provider for postgres"
+        },
+
         {
             name: "Resend",
             icon: <MailIcon className="w-8 h-8" />,
