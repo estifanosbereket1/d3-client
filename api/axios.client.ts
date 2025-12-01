@@ -31,6 +31,7 @@
 // export default axiosClient;
 
 
+import { authClient } from "@/lib/auth-client";
 import { store } from "@/store";
 import axios from "axios";
 
@@ -40,9 +41,10 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(
-    (config: any) => {
+    async (config: any) => {
         const state = store.getState();
         const orgId = state.organization?.id;
+        const { data } = await authClient.getSession()
 
         // Get Better Auth session cookie
         const sessionCookie = document.cookie
@@ -54,7 +56,7 @@ axiosClient.interceptors.request.use(
         if (sessionCookie) {
             config.headers = {
                 ...(config.headers || {}),
-                "Cookie": sessionCookie,
+                "Cookie": data,
             };
         }
 
