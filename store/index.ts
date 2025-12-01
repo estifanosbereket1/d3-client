@@ -19,10 +19,8 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
-                // ignore redux-persist action types
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-                // optionally ignore specific paths that contain non-serializable values:
-                // ignoredPaths: ["someSlice.nonSerializableField"],
+
             },
         }),
 });

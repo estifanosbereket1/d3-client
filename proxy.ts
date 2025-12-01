@@ -15,6 +15,8 @@ export default function authMiddleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
+
+
     // Otherwise, let the request pass
     return NextResponse.next()
 }
