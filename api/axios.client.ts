@@ -49,6 +49,8 @@ axiosClient.interceptors.request.use(
             .split('; ')
             .find(row => row.startsWith('better-auth.session_token='));
 
+        console.log("sesionnnn", sessionCookie)
+
         if (sessionCookie) {
             config.headers = {
                 ...(config.headers || {}),
@@ -67,3 +69,5 @@ axiosClient.interceptors.request.use(
     },
     (error: any) => Promise.reject(error)
 );
+
+export default axiosClient;

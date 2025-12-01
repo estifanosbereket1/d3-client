@@ -17,11 +17,11 @@ export default function DashboardLayout({
 
   console.log(data, "in lay")
 
-  if (!isPending && !isRefetching) {
-    if (!data) {
-      redirect("/sign-in");
-    }
-  }
+  // if (!isPending && !isRefetching) {
+  //   if (!data) {
+  //     redirect("/sign-in");
+  //   }
+  // }
   const router = useRouter()
   const [orgName, setOrgName] = useState("")
 

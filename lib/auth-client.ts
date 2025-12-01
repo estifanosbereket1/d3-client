@@ -5,5 +5,6 @@ export const authClient = createAuthClient({
     basePath: '/api/auth',
     plugins: [
         organizationClient(),
-    ]
+    ],
+
 })
