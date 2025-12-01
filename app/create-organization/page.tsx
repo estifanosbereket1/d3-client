@@ -93,7 +93,7 @@ export default function CreateOrganizationPage() {
           </form>
 
           <div className="mt-4 text-center text-sm">
-            <Link href="/join-organization" className="text-primary hover:underline font-medium">
+            <Link href="/select-organization" className="text-primary hover:underline font-medium">
               Join an existing organization instead
             </Link>
           </div>

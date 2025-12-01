@@ -13,10 +13,14 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
 
-  const { data } = authClient.useSession();
+  const { data, isPending, isRefetching } = authClient.useSession();
 
-  if (!data) {
-    redirect("/sign-in");
+  console.log(data, "in lay")
+
+  if (!isPending && !isRefetching) {
+    if (!data) {
+      redirect("/sign-in");
+    }
   }
   const router = useRouter()
   const [orgName, setOrgName] = useState("")

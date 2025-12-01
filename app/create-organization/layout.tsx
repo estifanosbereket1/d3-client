@@ -5,10 +5,12 @@ import { redirect } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 
 export default function CreateOrganizationLayout({ children }: { children: ReactNode }) {
-    const { data: session } = authClient.useSession()
+    const { data, isPending, isRefetching } = authClient.useSession()
 
-    if (!session) {
-        redirect("/sign-in")
+    if (!isPending && !isRefetching) {
+        if (!data) {
+            redirect("/sign-in");
+        }
     }
 
     return (
