@@ -1,6 +1,3 @@
-
-
-
 "use client"
 
 import React, { useEffect, useState } from "react"
@@ -9,33 +6,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts"
+
 import { useForm, Controller } from "react-hook-form"
 import { outlineSchema, outlineType } from "./schema/outline.schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Outline, OutlineResponse } from "@/interfaces/outline.interface"
 import { authClient } from "@/lib/auth-client"
-import { useApiMutation } from "@/hooks/useApiMutation"
+import { useApiMutation, useApiMutationWithId } from "@/hooks/useApiMutation"
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
+import { ChartAreaStacked } from "./trending.chart"
 
-interface OutlineItem {
-  id: string
-  header: string
-  sectionType: string
-  status: "In Progress" | "Done" | "Not Started"
-  target: number
-  limit: number
-  reviewer: string
-}
+
 
 interface OutlineSheetProps {
   item?: Outline
@@ -55,13 +36,6 @@ const SECTION_TYPE_OPTIONS = [
 
 const STATUS_OPTIONS = ["Pending", "In-Progress", "Completed"]
 
-const chartData = [
-  { month: "Jan", Mobile: 100, Desktop: 150 },
-  { month: "Feb", Mobile: 120, Desktop: 170 },
-  { month: "Mar", Mobile: 110, Desktop: 180 },
-  { month: "Apr", Mobile: 130, Desktop: 200 },
-  { month: "May", Mobile: 130, Desktop: 209 },
-]
 
 export function OutlineSheet({ item, trigger, invalidate }: OutlineSheetProps) {
   const [open, setOpen] = useState(false)
@@ -79,15 +53,16 @@ export function OutlineSheet({ item, trigger, invalidate }: OutlineSheetProps) {
 
   const { data: activeOrg } = authClient.useActiveOrganization()
   const { mutateAsync: createOutline, isPending: createPending, error: createError, isSuccess: createSuccess } = useApiMutation<outlineType>("/outline", "post",)
+  // const { mutateAsync: updateOutline, isPending: updatePending, error: updateError, isSuccess: updateSuccess } = useApiMutationWithId<outlineType, string>("/outline/" + item?.id, "patch", item?.id)
 
 
 
   const handleCreateOutline = form.handleSubmit(async (values) => {
     try {
-      console.log("Submitting values:", values)
       await createOutline(values)
       invalidate?.()
       setOpen(false)
+      form.reset()
     } catch (e) {
       console.error(e)
     }
@@ -115,46 +90,9 @@ export function OutlineSheet({ item, trigger, invalidate }: OutlineSheetProps) {
       <SheetTrigger asChild>{trigger || <Button variant="outline">Edit</Button>}</SheetTrigger>
 
       <SheetContent className="w-full sm:max-w-md lg:max-w-sm h-full overflow-y-auto p-6 bg-white" side="right">
-        <div className="mb-6">
-          <div className="rounded-lg bg-white shadow-md border border-gray-100 overflow-hidden">
-            <div className="w-full h-44">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                  <defs>
-                    <linearGradient id="colorMobile" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorDesktop" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} />
-                  <YAxis axisLine={false} tickLine={false} />
-                  <Tooltip />
-                  <Legend verticalAlign="top" height={24} />
-                  <Area type="monotone" dataKey="Mobile" stroke="#8884d8" fillOpacity={1} fill="url(#colorMobile)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="Desktop" stroke="#82ca9d" fillOpacity={1} fill="url(#colorDesktop)" strokeWidth={2} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="px-4 py-3 border-t border-gray-100">
-              <div className="h-2 rounded-md bg-gray-200 w-full" />
-            </div>
-          </div>
-        </div>
 
-        <div className="mb-5">
-          <h3 className="text-xl font-semibold mb-1 text-gray-900">{item?.header || "Cover page"}</h3>
-          <p className="text-xs text-gray-500 mb-2">Showing total visitors for the last 6 months</p>
-          <p className="text-sm text-gray-700 font-medium mb-2">Trending up by 5.2% this month ↗</p>
-          <p className="text-xs text-gray-600 leading-relaxed">
-            Showing total visitors for the last 6 months. This is just some random text to test the layout. It spans
-            multiple lines and should wrap around.
-          </p>
-        </div>
+
+        <ChartAreaStacked />
 
         <form onSubmit={handleCreateOutline}>
           <div className="space-y-5">

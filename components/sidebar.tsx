@@ -29,8 +29,8 @@ export function Sidebar({ orgName }: SidebarProps) {
   const { data: organizations } = authClient.useListOrganizations()
   const { data: activeOrg } = authClient.useActiveOrganization()
   const { data: activeMember } = authClient.useActiveMember()
-  const activeUser = activeOrg?.members.find((member) => member.id === activeMember?.id)
-  console.log("Active member", activeUser)
+  const activeUser = activeOrg?.members.find((member) => member.userId === activeMember?.userId)
+  console.log("Active member", activeMember?.userId, activeUser, activeOrg)
 
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
   const router = useRouter()
@@ -124,7 +124,7 @@ export function Sidebar({ orgName }: SidebarProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
-              <Link href="/organizations/new" className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-accent/5">
+              <Link href="/create-organization" className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-accent/5">
                 <div className="w-7 h-7 rounded-md bg-muted/10 flex items-center justify-center text-sm">
                   <Plus className="w-4 h-4" />
                 </div>
@@ -187,14 +187,7 @@ export function Sidebar({ orgName }: SidebarProps) {
               </div>
             </DropdownMenuLabel>
 
-            <DropdownMenuSeparator />
 
-            <DropdownMenuItem asChild>
-              <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
-                <User className="w-4 h-4" />
-                Profile
-              </Link>
-            </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 

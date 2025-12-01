@@ -5,6 +5,7 @@ import './globals.css'
 import { Toaster } from 'sonner';
 import TanstackQueryProvider from '@/components/provider/query.provider';
 import { ReduxProvider } from '@/components/provider/redux.provider';
+import { SidebarProvider } from "@/components/ui/sidebar"
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });

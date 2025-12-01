@@ -28,7 +28,6 @@ export default function AcceptInvitationPage() {
     console.log("Session data", data)
 
     useEffect(() => {
-        // Parse query parameters
         const orgName = searchParams.get("orgName") || "Unknown Company"
         const inviterName = searchParams.get("inviterName") || "Unknown"
         const role = searchParams.get("role") || "Member"
@@ -57,12 +56,13 @@ export default function AcceptInvitationPage() {
         }
     }
 
-    const handleReject = () => {
+    const handleReject = async () => {
         setIsLoading(true)
-        setTimeout(() => {
-            setStatus("rejected")
-            setTimeout(() => router.push("/"), 1500)
-        }, 500)
+        const { data, error } = await authClient.organization.rejectInvitation({
+            invitationId: invitationData?.id as string,
+        });
+        router.replace("/sign-in")
+        console.log(data, error)
     }
 
     return (

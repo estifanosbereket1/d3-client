@@ -98,14 +98,10 @@ export default function SelectOrganizationPage() {
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-lg flex-shrink-0">
-                                            {/* show logo if present, otherwise icon */}
                                             {org.logo ? (
-                                                // if logo is a URL you may want to render an <img />, but given hook logo type is string | null, keep it simple
                                                 typeof org.logo === "string" && org.logo.length <= 2 ? (
-                                                    // emoji or short text
                                                     <span>{org.logo}</span>
                                                 ) : (
-                                                    // longer string likely a URL - show first char fallback (or replace with <img> tag if desired)
                                                     <span>{org.name.charAt(0).toUpperCase()}</span>
                                                 )
                                             ) : (
