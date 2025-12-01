@@ -11,7 +11,9 @@ rewrites(){
   return [
       {
           source:'/api/:path*',
-          destination:"http://localhost:3000/api/:path*"
+          destination:`https://d3.beete-nibab.com/api/auth/:path*`
+
+          // destination:"http://localhost:3000/api/:path*"
       }
   ]
 }
