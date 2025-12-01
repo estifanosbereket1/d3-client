@@ -49,7 +49,8 @@ export default function SignInPage() {
 
         }
       })
-
+      console.log(resp.data)
+      console.log(resp.error)
 
 
       if (id) {
