@@ -30,6 +30,7 @@ export default function SignInPage() {
         password: values.password,
       })
 
+
       if (resp.error) {
         toast("Please try again", {
 
@@ -48,6 +49,8 @@ export default function SignInPage() {
 
         }
       })
+
+
 
       if (id) {
         router.push(`/accept-invitation/${id}`)
