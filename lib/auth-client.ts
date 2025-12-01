@@ -4,10 +4,12 @@ import { organizationClient } from "better-auth/client/plugins"
 export const authClient = createAuthClient({
     basePath: '/api/auth',
     fetchOptions: {
-        credentials: "include"
+        credentials: "include",
+
     },
     plugins: [
         organizationClient(),
     ],
+
 
 })
