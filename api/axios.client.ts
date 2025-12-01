@@ -1,18 +1,61 @@
-// src/api/axiosClient.ts
+// import { store } from "@/store";
+// import axios from "axios";
+
+// const axiosClient = axios.create({
+//     withCredentials: true,
+
+//     baseURL: process.env.NEXT_PUBLIC_ENVIRONMENT == "development" ? process.env.NEXT_PUBLIC_API_URL : process.env.NEXT_PUBLIC_PRODUCTION_URL,
+// });
+
+// axiosClient.interceptors.request.use(
+//     (config: any) => {
+//         const state = store.getState();
+//         const orgId = state.organization?.id;
+//         if (orgId) {
+//             config.headers = {
+//                 ...(config.headers || {}),
+//                 "x-organization-id": orgId,
+//             };
+//         }
+
+//         return config;
+//     },
+//     (error: any) => Promise.reject(error)
+// );
+
+// axiosClient.interceptors.response.use(
+//     (response: any) => response,
+//     (error: any) => Promise.reject(error)
+// );
+
+// export default axiosClient;
+
+
 import { store } from "@/store";
 import axios from "axios";
-// import store from "../store";
 
 const axiosClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    withCredentials: true
+    withCredentials: true,
+    baseURL: process.env.NEXT_PUBLIC_ENVIRONMENT == "development" ? process.env.NEXT_PUBLIC_API_URL : process.env.NEXT_PUBLIC_PRODUCTION_URL,
 });
 
-// REQUEST INTERCEPTOR
 axiosClient.interceptors.request.use(
     (config: any) => {
         const state = store.getState();
         const orgId = state.organization?.id;
+
+        // Get Better Auth session cookie
+        const sessionCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('better-auth.session_token='));
+
+        if (sessionCookie) {
+            config.headers = {
+                ...(config.headers || {}),
+                "Cookie": sessionCookie,
+            };
+        }
+
         if (orgId) {
             config.headers = {
                 ...(config.headers || {}),
@@ -24,11 +67,3 @@ axiosClient.interceptors.request.use(
     },
     (error: any) => Promise.reject(error)
 );
-
-// RESPONSE INTERCEPTOR
-axiosClient.interceptors.response.use(
-    (response: any) => response,
-    (error: any) => Promise.reject(error)
-);
-
-export default axiosClient;

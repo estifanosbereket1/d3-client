@@ -710,13 +710,7 @@ export function DataTable() {
                     <div className="aspect-video w-full flex-1 rounded-lg border border-dashed" />
                 </TabsContent>
             </Tabs>
-            {/* {addSectionOpen && (
-                <TableCellViewer
-                    open={addSectionOpen}
-                    onOpenChange={setAddSectionOpen}
-                    invalidate={refetch}
-                />
-            )} */}
+
 
             <TableCellViewer
                 item={editingItem}
@@ -754,7 +748,7 @@ function TableCellViewer({
         "Narrative",
     ]
 
-    const STATUS_OPTIONS = ["Pending", "In-Progress", "Completed"]
+    const STATUS_OPTIONS = ["Pending", "InProgress", "Completed"]
 
     const form = useForm<outlineType>({
         defaultValues: {
@@ -767,7 +761,6 @@ function TableCellViewer({
 
     const { data: activeOrg } = authClient.useActiveOrganization()
     const { mutateAsync: createOutline, isPending: createPending } = useApiMutation<outlineType>("/outline", "post")
-    // updated hook can patch with a body: use as updateOutline.mutateAsync({ id: item.id, body: values })
     const updateOutline = useApiMutationWithId<outlineType>("/outline", "patch")
 
     React.useEffect(() => {
@@ -806,7 +799,7 @@ function TableCellViewer({
         <Drawer open={open} onOpenChange={onOpenChange} direction={isMobile ? "bottom" : "right"}>
             <DrawerTrigger asChild>
                 <Button variant="link" className="text-foreground w-fit px-0 text-left">
-                    {item?.header || "New Section"}
+                    {item?.header}
                 </Button>
             </DrawerTrigger>
 

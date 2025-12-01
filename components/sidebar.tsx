@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LayoutGrid, Users, LogOut, User, ChevronDown, Plus, Building } from "lucide-react"
+import { LayoutGrid, Users, LogOut, User, ChevronDown, Plus, Building, Code2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -29,18 +29,18 @@ export function Sidebar({ orgName }: SidebarProps) {
   const { data: organizations } = authClient.useListOrganizations()
   const { data: activeOrg } = authClient.useActiveOrganization()
   const { data: activeMember } = authClient.useActiveMember()
+  const { data: sessions } = authClient.useSession()
   const activeUser = activeOrg?.members.find((member) => member.userId === activeMember?.userId)
-  console.log("Active member", activeMember?.userId, activeUser, activeOrg)
 
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
   const router = useRouter()
 
-  console.log("Active org", activeOrg)
 
   const [currentOrg, setCurrentOrg] = useState(orgName)
 
   const menuItems = [
     { icon: LayoutGrid, label: "Table", href: "/dashboard/table" },
+    { icon: Code2, label: "Docs", href: "/dashboard/docs" },
   ]
 
 
@@ -48,7 +48,10 @@ export function Sidebar({ orgName }: SidebarProps) {
     localStorage.removeItem("session")
     dispatch(clearOrganizationId());
     authClient.signOut()
-    window.location.href = "/sign-in"
+    authClient.revokeSession({
+      token: sessions?.session.token ?? " "
+    })
+    router.replace("/sign-in")
   }
 
   const handleOrgChange = async (organizationId: string) => {
@@ -65,14 +68,12 @@ export function Sidebar({ orgName }: SidebarProps) {
   }
 
   useEffect(() => {
-    console.log("does it have an active organization")
-    console.log(activeOrg)
+
     if (activeOrg) {
       setCurrentOrg(activeOrg.name)
     }
   }, [activeOrg])
 
-  const currentOrgData = organizations?.find((org) => org.name === currentOrg)
 
   return (
     <div className="w-64 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col h-screen">
@@ -193,7 +194,7 @@ export function Sidebar({ orgName }: SidebarProps) {
 
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={handleLogout}
+              onClick={() => setIsLogoutOpen(true)}
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -229,32 +230,3 @@ export function Sidebar({ orgName }: SidebarProps) {
 }
 
 
-{/* <Select value={organizations?.find((org) => org.name === currentOrg)?.id || ""} onValueChange={handleOrgChange}>
-
-          <SelectTrigger className="w-full bg-sidebar text-sidebar-foreground border-sidebar-border">
-            <div className="flex items-center gap-3 w-full">
-              <div className="w-8 h-8 rounded bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm font-semibold flex-shrink-0">
-                {currentOrg.charAt(0).toUpperCase()}
-              </div>
-
-              <div className="flex flex-col text-left">
-                <SelectValue placeholder="Select organization" />
-              </div>
-            </div>
-          </SelectTrigger>
-
-          <SelectContent>
-            {organizations?.map((org) => (
-              <SelectItem key={org.id} value={org.id}>
-                <div className="flex items-center gap-3">
-
-                  <div className="flex flex-col">
-                    <p className="text-sm font-medium">{org.name}</p>
-                    <p className="text-xs text-muted-foreground">{org.slug}</p>
-                  </div>
-                </div>
-              </SelectItem>
-
-            ))}
-          </SelectContent>
-        </Select> */}

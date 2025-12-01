@@ -13,7 +13,7 @@ export enum SectionStyle {
 
 export enum Status {
     Pending = "Pending",
-    InProgress = "In-Progress",
+    InProgress = "InProgress",
     Completed = "Completed",
 }
 

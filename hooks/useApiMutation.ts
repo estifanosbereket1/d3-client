@@ -21,20 +21,7 @@ export function useApiMutation<TData = unknown, TVariables = any, TError = unkno
     });
 }
 
-// export function useApiMutationWithId<TData = unknown, TError = unknown>(
-//     path: string,
-//     method: "patch" | "delete",
-//     options?: UseMutationOptions<TData, TError, string | number>
-// ) {
-//     return useMutation<TData, TError, string | number>({
-//         mutationFn: async (id: string | number) => {
-//             const url = `${path}/${id}`; // attach id to URL
-//             const res = await axiosClient({ url, method });
-//             return res.data;
-//         },
-//         ...options,
-//     });
-// }
+
 export function useApiMutationWithId<TData = unknown, TError = unknown>(
     path: string,
     method: "patch" | "delete",
@@ -51,16 +38,4 @@ export function useApiMutationWithId<TData = unknown, TError = unknown>(
 }
 
 
-// export function useApiMutationWithId<TData = unknown, TVariables = any, TError = unknown>(
-//     path: RequireIdPath<string>,
-//     method: "patch" | "delete",
-//     options?: UseMutationOptions<TData, TError, TVariables>
-// ) {
-//     return useMutation<TData, TError, TVariables>({
-//         mutationFn: async (variables) => {
-//             const res = await axiosClient({ url: path, method, data: variables });
-//             return res.data;
-//         },
-//         ...options,
-//     });
-// }
+
