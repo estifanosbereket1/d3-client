@@ -8,14 +8,15 @@ const nextConfig = {
   },
   rewrites(){
       return [
+        {
+          source:'/auth/v1/:path*',
+          destination:`http://d3.beete-nibab.com/auth/v1/:path*`
+        },
           {
               source:'/api/:path*',
               destination:`http://d3.beete-nibab.com/api/:path*`
           },
-          {
-              source:'/auth/v1/:path*',
-              destination:`http://d3.beete-nibab.com/auth/v1/:path*`
-          }
+        
       ]
   }
 };
