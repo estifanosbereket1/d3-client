@@ -31,7 +31,6 @@ export default function CreateOrganizationPage() {
         keepCurrentActiveOrganization: true,
       })
       if (resp.error) {
-        console.log(resp)
         toast("Please try again", {
           description: resp.error.message,
           position: "top-right",

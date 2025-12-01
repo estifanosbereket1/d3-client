@@ -31,7 +31,6 @@ export default function SignInPage() {
       })
 
       if (resp.error) {
-        console.log(resp)
         toast("Please try again", {
 
           description: resp.error.message,

@@ -39,8 +39,7 @@ export default function TeamPage() {
       role: inviteRole,
       organizationId: activeOrg?.id, resend: true,
     });
-    console.log("Error", error)
-    console.log("data", data)
+
     setInviteEmail("")
     setInviteRole("member")
     setInviteOpen(false)
@@ -126,9 +125,13 @@ export default function TeamPage() {
         <Button variant={tab === "members" ? "default" : "ghost"} onClick={() => setTab("members")}>
           Members
         </Button>
-        <Button variant={tab === "invitations" ? "default" : "ghost"} onClick={() => setTab("invitations")}>
-          Invitations
-        </Button>
+
+        {activeRole?.role === "owner" && (
+
+          <Button variant={tab === "invitations" ? "default" : "ghost"} onClick={() => setTab("invitations")}>
+            Invitations
+          </Button>
+        )}
       </div>
 
       {/* Members View */}
@@ -193,6 +196,31 @@ export default function TeamPage() {
           </CardHeader>
 
           <CardContent>
+            <div className="mb-4 flex items-start justify-between gap-4 rounded-md border border-yellow-200 bg-yellow-50 p-3">
+              <div className="flex items-center gap-2">
+                <Badge className="bg-yellow-100 text-yellow-800 flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  Invitation sent
+                </Badge>
+                <p className="text-sm text-yellow-900">
+                  We sent invitation emails — ask invited users to check their <strong>Spam / Promotions</strong> folder.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    // optionally could persist dismissal in your backend/localStorage
+                    // setShowInviteNotice(false)
+                  }}
+                  title="Dismiss"
+                >
+                  Dismiss
+                </Button>
+              </div>
+            </div>
             <Table>
               <TableHeader>
                 <TableRow>

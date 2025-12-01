@@ -3,17 +3,23 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { Sidebar } from "@/components/sidebar"
+import { authClient } from "@/lib/auth-client"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+
+  const { data } = authClient.useSession();
+
+  if (!data) {
+    redirect("/sign-in");
+  }
   const router = useRouter()
   const [orgName, setOrgName] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
 
   return (
     <div className="flex h-screen">

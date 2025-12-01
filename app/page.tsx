@@ -12,10 +12,10 @@ export default function RootPage() {
 
   useEffect(() => {
     if (!isLoadingAuth && session) {
-      router.push("/dashboard/table")
+      router.replace("/dashboard/table")
       return
     }
-    router.push("/sign-in")
+    router.replace("/sign-in")
   }, [router, session, isLoadingAuth])
 
   return null

@@ -25,7 +25,6 @@ export default function AcceptInvitationPage() {
 
     const { data } = authClient.useSession()
 
-    console.log("Session data", data)
 
     useEffect(() => {
         const orgName = searchParams.get("orgName") || "Unknown Company"
@@ -52,7 +51,6 @@ export default function AcceptInvitationPage() {
                 invitationId: invitationData?.id as string, // required
             });
             router.push("/")
-            console.log(data, error)
         }
     }
 
@@ -62,7 +60,6 @@ export default function AcceptInvitationPage() {
             invitationId: invitationData?.id as string,
         });
         router.replace("/sign-in")
-        console.log(data, error)
     }
 
     return (

@@ -26,7 +26,6 @@ export default function SelectOrganizationPage() {
     const orgQuery = authClient.useListOrganizations()
     const organizations: Organization[] | null | undefined = orgQuery.data
 
-    console.log(orgQuery, "orgQuery")
 
     const loading = (orgQuery as any).isLoading ?? organizations === undefined
 
@@ -57,7 +56,7 @@ export default function SelectOrganizationPage() {
     }
 
     const handleContinue = async () => {
-        if (!selectedOrgId) return
+        if (selectedOrgId.id == "") return
         await authClient.organization.setActive({
             organizationId: selectedOrgId.id,
             organizationSlug: selectedOrgId.slug
@@ -131,7 +130,7 @@ export default function SelectOrganizationPage() {
                     </div>
 
                     <div className="space-y-2 pt-4 border-t">
-                        <Button onClick={handleContinue} disabled={!selectedOrgId} className="w-full">
+                        <Button onClick={handleContinue} disabled={selectedOrgId.id === ""} className="w-full">
                             Continue
                         </Button>
 
