@@ -10,7 +10,7 @@ const nextConfig = {
       return [
           {
               source:'/api/:path*',
-              destination:`http://localhost:3000/api/:path*`
+              destination:`http://d3.beete-nibab.com/api/:path*`
           }
       ]
   }
