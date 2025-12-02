@@ -7,11 +7,11 @@ import { authClient } from "@/lib/auth-client"
 export default function SelectOrganizationLayout({ children }: { children: ReactNode }) {
     const { data, isPending, isRefetching } = authClient.useSession()
 
-    // if (!isPending && !isRefetching) {
-    //     if (!data) {
-    //         redirect("/sign-in");
-    //     }
-    // }
+    if (!isPending && !isRefetching) {
+        if (!data) {
+            redirect("/sign-in");
+        }
+    }
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
             {children}
