@@ -67,7 +67,7 @@ export default function DocsPage() {
         {
             title: "Authentication Docs",
             description: "Documentation for Better Auth",
-            url: "http://d3.beete-nibab.com/api/v1/auth/refrences",
+            url: "http://d3.beete-nibab.com/api/auth/reference",
         },
         {
             title: "Outline Docs",

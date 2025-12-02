@@ -3,8 +3,8 @@ import axios from "axios";
 
 const axiosClient = axios.create({
     withCredentials: true,
-
     baseURL: process.env.NEXT_PUBLIC_ENVIRONMENT == "development" ? process.env.NEXT_PUBLIC_API_URL : process.env.NEXT_PUBLIC_PRODUCTION_URL,
+
 });
 
 axiosClient.interceptors.request.use(
