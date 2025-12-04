@@ -67,6 +67,8 @@ export function Sidebar({ orgName }: SidebarProps) {
     }
   }
 
+  console.log(activeOrg)
+
   useEffect(() => {
 
     if (activeOrg) {
@@ -85,7 +87,18 @@ export function Sidebar({ orgName }: SidebarProps) {
               aria-label="Open organization selector"
             >
               <div className="w-8 h-8 rounded bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm font-semibold flex-shrink-0">
-                {currentOrg?.charAt(0).toUpperCase() || "O"}
+                {/* {currentOrg?.charAt(0).toUpperCase() || "O"} */}
+                {activeOrg?.logo ? (
+                  <img
+                    src={activeOrg?.logo}
+                    alt={activeOrg?.name}
+                    className="w-8 h-8 rounded bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm font-semibold flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm font-semibold flex-shrink-0">
+                    {currentOrg?.charAt(0).toUpperCase() || "O"}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col text-left truncate">
@@ -109,7 +122,17 @@ export function Sidebar({ orgName }: SidebarProps) {
                   onClick={() => handleOrgChange(org.id)}
                 >
                   <div className="w-7 h-7 rounded-md bg-muted/10 flex items-center justify-center text-sm">
-                    <Building className="w-4 h-4" />
+                    {org.logo ? (
+                      <img
+                        src={org.logo}
+                        alt={org.name}
+                        className="w-7 h-7 rounded-md bg-muted/10 flex items-center justify-center text-sm"
+                      />
+                    ) : (
+                      <Building className="w-4 h-4" />
+                    )
+                    }
+
                   </div>
 
                   <div className="flex-1 text-left">

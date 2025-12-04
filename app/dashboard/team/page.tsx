@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { UserPlus, Trash2, Mail } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import ConfirmDialog from "@/components/confirm.dialougue"
+import UpdateOrganizationModal from "@/components/update.organization"
 
 type Tab = "members" | "invitations"
 
@@ -102,9 +103,15 @@ export default function TeamPage() {
 
       {/* Organization Info */}
       <Card>
-        <CardHeader>
-          <CardTitle>Organization</CardTitle>
-          <CardDescription>Your organization details</CardDescription>
+        <CardHeader className="flex justify-between items-start">
+          <div>
+            <CardTitle>Organization</CardTitle>
+            <CardDescription>Your organization details</CardDescription>
+          </div>
+
+          {activeRole?.role === "owner" && activeOrg && (
+            <UpdateOrganizationModal org={activeOrg} />
+          )}
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -152,10 +159,7 @@ export default function TeamPage() {
                     Invite Member
                   </Button>
                 }
-                {/* <Button>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Invite Member
-                </Button> */}
+
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
