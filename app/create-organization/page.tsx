@@ -32,13 +32,11 @@ export default function CreateOrganizationPage() {
         slug: values.slug, // required
       });
 
-      if (!slugError) {
-        if (slugCheck) {
-          toast("Slug already exists", {
-            position: "top-right"
-          })
-          return
-        }
+      if (slugError) {
+        toast("Slug already exists", {
+          position: "top-right"
+        })
+        return
       }
       const resp = await authClient.organization.create({
         name: values.name,

@@ -47,13 +47,11 @@ export default function UpdateOrganizationModal({ org }: Props) {
                 slug: values.slug, // required
             });
 
-            if (!slugError) {
-                if (slugCheck) {
-                    toast("Slug already exists", {
-                        position: "top-right"
-                    })
-                    return
-                }
+            if (slugError) {
+                toast("Slug already exists", {
+                    position: "top-right"
+                })
+                return
             }
             const { data, error } = await authClient.organization.update({
                 data: { // required
